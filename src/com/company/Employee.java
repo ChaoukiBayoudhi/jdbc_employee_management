@@ -21,12 +21,13 @@ public class Employee {
     private int managerId;
     //private int deptNo;
     //get student's attributes values from the keyboard
-    public void getStudent()
+    public void getEmployee()
     {
         Scanner sc=new Scanner(System.in);
         System.out.println("id ? = ");
         this.id=sc.nextInt();
         System.out.println("name ? = ");
+        sc.nextLine();
         this.name=sc.nextLine();
         System.out.println("birthdate ? = ");
         String birthday=sc.next();
