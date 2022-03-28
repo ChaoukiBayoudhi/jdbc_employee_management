@@ -1,6 +1,9 @@
 package com.company;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.sql.DriverManager.getConnection;
 
@@ -80,5 +83,32 @@ public class DBConnection {
       }
        return false;
    }
+public static List<Employee> getAllEmployees()throws SQLException
+{
+    List<Employee> lstEmployees=new ArrayList<>();
+    try{
+        Connection con=getDbConnection();
+        String request="select * from employee";
+        PreparedStatement ps =con.prepareStatement(request);
+        ResultSet rs=ps.executeQuery();
+        while(rs.next()){
+            //create an employee
+            Employee employee=new Employee();
+            employee.setId(rs.getInt("id"));
+            employee.setName(rs.getString("name"));
+            employee.setBirthdate(rs.getObject("birthdate", LocalDate.class));
+            employee.setHiredate(rs.getObject("hiredate", LocalDate.class));
+            employee.setSalary(rs.getBigDecimal("salary"));
+            employee.setManagerId(rs.getInt("mgr_id"));
+            lstEmployees.add(employee);
+        }
 
+    }catch(SQLException e) {
+        System.out.println("Sql State = "+e.getSQLState()+"\nException Message = "+e.getMessage());
+    }
+    finally{
+        closeConnection();
+    }
+    return lstEmployees;
+}
 }
