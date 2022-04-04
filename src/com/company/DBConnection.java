@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.Exceptions.EmployeeNotFoundException;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -63,12 +65,12 @@ public class DBConnection {
            Connection conn = getDbConnection();
            String req="insert into employee values(?,?,?,?,?,?)";
            PreparedStatement ps = conn.prepareStatement(req);
-           ps.setInt(1,emp.getId());
+           ps.setLong(1,emp.getId());
            ps.setString(2,emp.getName());
            ps.setObject(3,emp.getBirthdate());
            ps.setBigDecimal(4,emp.getSalary());
            ps.setObject(5,emp.getHiredate());
-           ps.setInt(6,emp.getManagerId());
+           ps.setLong(6,emp.getManagerId());
            ps.executeUpdate();
            ps.close();
            return true;
@@ -94,12 +96,12 @@ public static List<Employee> getAllEmployees()throws SQLException
         while(rs.next()){
             //create an employee
             Employee employee=new Employee();
-            employee.setId(rs.getInt("id"));
+            employee.setId(rs.getLong("id"));
             employee.setName(rs.getString("name"));
             employee.setBirthdate(rs.getObject("birthdate", LocalDate.class));
             employee.setHiredate(rs.getObject("hiredate", LocalDate.class));
             employee.setSalary(rs.getBigDecimal("salary"));
-            employee.setManagerId(rs.getInt("mgr_id"));
+            employee.setManagerId(rs.getLong("mgr_id"));
             lstEmployees.add(employee);
         }
 
@@ -111,4 +113,95 @@ public static List<Employee> getAllEmployees()throws SQLException
     }
     return lstEmployees;
 }
+public static void deleteEmployee(long id)throws SQLException{
+       try {
+           Connection con=getDbConnection();
+           String request="select id from employee where id=?";
+           PreparedStatement ps =con.prepareStatement(request);
+           ps.setLong(1,id);
+           ResultSet rs = ps.executeQuery();
+
+           boolean result=rs.next();
+           if(!result)
+               throw new EmployeeNotFoundException("There is not employee with id = "+id);
+           ps.close();
+           request="delete from employee where id ="+id;
+           ps=con.prepareStatement(request);
+           ps.executeUpdate();
+           System.out.println("The employee with id = "+ id +" has been successfully deleted.");
+           ps.close();
+       }catch(SQLException e)
+       {
+           System.err.format("Sql State = "+e.getSQLState()+"\nException Message = "+e.getMessage());
+       }
+       catch(EmployeeNotFoundException e)
+       {
+           System.out.println(e.getMessage());
+       }
+       finally{
+           closeConnection();
+       }
+}
+public static void updateEmployee(Long id,Employee newEmp)throws SQLException
+{
+    try{
+        Connection conn = getDbConnection();
+        String request="select id from employee where id=?";
+        PreparedStatement ps =conn.prepareStatement(request);
+        ps.setLong(1,id);
+        ResultSet rs = ps.executeQuery();
+
+        boolean result=rs.next();
+        if(!result)
+            throw new EmployeeNotFoundException("There is not employee with id = "+id);
+        ps.close();
+        request="update employee set name=?, birthdate=?,hiredate=?,salary=?,mgr_id=?";
+        ps =conn.prepareStatement(request);
+        ps.setString(1,newEmp.getName());
+        ps.setObject(2,newEmp.getBirthdate());
+        ps.setObject(3,newEmp.getHiredate());
+        ps.setBigDecimal(4,newEmp.getSalary());
+        ps.setLong(5,newEmp.getManagerId());
+        ps.executeUpdate();
+        System.out.println("The Employee with id = "+ id +" has been successfully updated.");
+    }
+    catch(EmployeeNotFoundException e)
+    {
+        System.out.println(e.getMessage());
+    }
+       finally{
+    closeConnection();
+}
+}
+
+    public static Employee getEmployeeById(long id) throws SQLException {
+        Employee eRes=new Employee();
+
+        try {
+            Connection conn = getDbConnection();
+            String request = "select * from employee where id=?";
+            PreparedStatement ps = conn.prepareStatement(request);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            boolean result = rs.next();
+            if (!result)
+                throw new EmployeeNotFoundException("There is not employee with id = " + id);
+            eRes.setId(rs.getLong("id"));
+            //...
+            ps.close();
+        }
+            catch(EmployeeNotFoundException e)
+            {
+                System.out.println(e.getMessage());
+            }
+        catch(SQLException e)
+        {
+            System.err.format("Sql State = "+e.getSQLState()+"\nException Message = "+e.getMessage());
+        }
+       finally{
+                closeConnection();
+            }
+        return eRes;
+    }
 }

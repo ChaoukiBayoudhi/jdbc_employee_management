@@ -13,19 +13,19 @@ import java.util.Scanner;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Employee {
-    private int id;
+    private Long id;
     private String name;
     private LocalDate birthdate;
     private BigDecimal salary;
     private LocalDate hiredate;
-    private int managerId;
+    private Long managerId;
     //private int deptNo;
     //get student's attributes values from the keyboard
     public void getEmployee()
     {
         Scanner sc=new Scanner(System.in);
         System.out.println("id ? = ");
-        this.id=sc.nextInt();
+        this.id=sc.nextLong();
         System.out.println("name ? = ");
         sc.nextLine();
         this.name=sc.nextLine();
@@ -42,6 +42,6 @@ public class Employee {
         System.out.println("salary ? = ");
         this.salary=sc.nextBigDecimal();
         System.out.println("manager id ? = ");
-        this.managerId=sc.nextInt();
+        this.managerId=sc.nextLong();
     }
 }
